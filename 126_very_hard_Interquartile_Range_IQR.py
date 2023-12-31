@@ -30,35 +30,57 @@ iqr([5, 4, 3, 2, 1]) ➞ 3.0
 
 iqr([-3.1, -3.8, -14, 23, 0]) ➞ 20.4
 """
+
 def iqr(lst):
+    sorted_lst = sorted(lst)
+    length = len(lst)
 
-    flag = False
-
-    if len(lst) % 2 == 0:
-        flag = True
-        return helper_iqr(lst, flag)
+    if length % 2 == 0:
+        q1 = median(sorted_lst[:length // 2])
+        q3 = median(sorted_lst[length // 2:])
     else:
-        return helper_iqr(lst, flag)
+        q1 = median(sorted_lst[:length // 2])
+        q3 = median(sorted_lst[length // 2 + 1:])
 
-def helper_iqr(lst, flag):
+    return q3 - q1
 
-    half_length = int((len(lst) / 2))
-    lower_half = sum(sorted(lst)[:half_length]) / half_length
-    upper_half = sum(sorted(lst)[-half_length:]) / half_length
-    if flag:
-        return upper_half - lower_half
+def median(lst):
+    length = len(lst)
+    if length % 2 == 0:
+        print((lst[length // 2 - 1] + lst[length // 2]) / 2)
+        return (lst[length // 2 - 1] + lst[length // 2]) / 2
     else:
-        return round(upper_half) - round(lower_half)
+        print(lst[length // 2])
+        return lst[length // 2]
+# def iqr(lst):
+#
+#     flag = False
+#
+#     if len(lst) % 2 == 0:
+#         flag = True
+#         return helper_iqr(lst, flag)
+#     else:
+#         return helper_iqr(lst, flag)
+#
+# def helper_iqr(lst, flag):
+#
+#     half_length = int((len(lst) / 2))
+#     lower_half = sum(sorted(lst)[:half_length]) / half_length
+#     upper_half = sum(sorted(lst)[-half_length:]) / half_length
+#     if flag:
+#         return upper_half - lower_half
+#     else:
+#         return round(upper_half) - round(lower_half)
 
 
-print(iqr([1, 1, 3, 4, 4, 5, 5, 5, 6, 7, 9])) # 3
+# print(iqr([1, 1, 3, 4, 4, 5, 5, 5, 6, 7, 9])) # 3
 print(iqr([6, 4, 4, 4, 3, 3, 2, 1])) # 1.5
-print(iqr([6, 5, 2.6, 8, 4.9, 5, 7.9])) # 3.0
-print(iqr([14, 28, 0, 15, 12, 15, 15, 15])) #, 2.0)
-print(iqr([-3.1, -3.8, -14, 23, 0])) #, 20.4)
-print(iqr([-12, 0, 0, 0, 3])) # , 7.5)
-print(iqr([-3, 0, 0, 0, 0, 4.7])) #, 0.0)
-print(iqr([0, 0, 0, 0, 0, 0])) # , 0.0)
-print(iqr([0, 0, 0, 0, 0, 0, 0])) # , 0.0)
+# print(iqr([6, 5, 2.6, 8, 4.9, 5, 7.9])) # 3.0
+# print(iqr([14, 28, 0, 15, 12, 15, 15, 15])) #, 2.0)
+# print(iqr([-3.1, -3.8, -14, 23, 0])) #, 20.4)
+# print(iqr([-12, 0, 0, 0, 3])) # , 7.5)
+# print(iqr([-3, 0, 0, 0, 0, 4.7])) #, 0.0)
+# print(iqr([0, 0, 0, 0, 0, 0])) # , 0.0)
+# print(iqr([0, 0, 0, 0, 0, 0, 0])) # , 0.0)
 
 
