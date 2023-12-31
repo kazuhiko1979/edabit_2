@@ -47,11 +47,12 @@ def iqr(lst):
 def median(lst):
     length = len(lst)
     if length % 2 == 0:
-        print((lst[length // 2 - 1] + lst[length // 2]) / 2)
+        # print((lst[length // 2 - 1] + lst[length // 2]) / 2)
         return (lst[length // 2 - 1] + lst[length // 2]) / 2
     else:
-        print(lst[length // 2])
+        # print(lst[length // 2])
         return lst[length // 2]
+
 # def iqr(lst):
 #
 #     flag = False
