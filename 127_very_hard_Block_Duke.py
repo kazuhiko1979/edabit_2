@@ -57,30 +57,52 @@ can_traverse([
 
 # Block dude can't climb 2 blocks.
 """
-import collections
-import numpy as np
+def can_climb(current, next_):
+    diff = abs(current - next_)
+    return current == next_ or diff == 1
 
 def can_traverse(x):
 
-    l_2d_x = np.array(x).T.tolist()
-
+    transposed = list(zip(*x))
     step = 0
-    current_block = collections.Counter(l_2d_x[step])
-    for i in l_2d_x[1:]:
-        count_l_2d_x = collections.Counter(i)
-        current_zero = [i for i in current_block.values()][0]
-        diff_zero = abs(current_zero - count_l_2d_x[0])
+    current_block = transposed[step].count(1)
 
-        if current_block == count_l_2d_x:
-            step += 1
-            current_block = count_l_2d_x
-        elif diff_zero == 1:
-            step += 1
-            current_block = count_l_2d_x
-        else:
+    for col in transposed[1:]:
+        count_next_col = col.count(1)
+        if not can_climb(current_block, count_next_col):
             return False
+        else:
+            step += 1
+            current_block = count_next_col
+    return step == len(x[0]) - 1
 
-    return True if step == 8 else False
+
+
+
+# import collections
+# import numpy as np
+#
+# def can_traverse(x):
+#
+#     l_2d_x = np.array(x).T.tolist()
+#
+#     step = 0
+#     current_block = collections.Counter(l_2d_x[step])
+#     for i in l_2d_x[1:]:
+#         count_l_2d_x = collections.Counter(i)
+#         current_zero = [i for i in current_block.values()][0]
+#         diff_zero = abs(current_zero - count_l_2d_x[0])
+#
+#         if current_block == count_l_2d_x:
+#             step += 1
+#             current_block = count_l_2d_x
+#         elif diff_zero == 1:
+#             step += 1
+#             current_block = count_l_2d_x
+#         else:
+#             return False
+#
+#     return True if step == 8 else False
 
 
 
