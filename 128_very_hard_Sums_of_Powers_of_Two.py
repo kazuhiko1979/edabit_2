@@ -21,11 +21,12 @@ def sums_of_powers_of_two(n):
 
     while n > 0:
         # 奇数か偶数か判定（ビット）
-        if n & 1:
+        if n % 2 != 0:
             result.append(2 ** power)
         power += 1
         # ビット右にシフト（数値を2で割ると同等）
-        n >>= 1
+        # n >>= 1
+        n = n // 2
     return result
 
 
