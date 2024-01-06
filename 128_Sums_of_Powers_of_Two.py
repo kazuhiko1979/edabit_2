@@ -16,23 +16,38 @@ Tests will only include positive whole numbers.
 
 def sums_of_powers_of_two(n):
 
-    count = 0
-    temp = 0
     result = []
-    while n >= temp:
-        result.append(pow(2, count))
-        temp = pow(2, count)
-        count += 1
-    result = sorted(result[:-1], reverse=True)
+    power = 0
 
-    final = []
-    for i in result:
-        if (n - i) >= 0:
-            final.append(i)
-            n = n - i
-        else:
-            continue
-    return sorted(final)
+    while n > 0:
+        # 奇数か偶数か判定（ビット）
+        if n & 1:
+            result.append(2 ** power)
+        power += 1
+        # ビット右にシフト（数値を2で割ると同等）
+        n >>= 1
+    return result
+
+
+
+
+    # count = 0
+    # temp = 0
+    # result = []
+    # while n >= temp:
+    #     result.append(pow(2, count))
+    #     temp = pow(2, count)
+    #     count += 1
+    # result = sorted(result[:-1], reverse=True)
+    #
+    # final = []
+    # for i in result:
+    #     if (n - i) >= 0:
+    #         final.append(i)
+    #         n = n - i
+    #     else:
+    #         continue
+    # return sorted(final)
 
 
 
