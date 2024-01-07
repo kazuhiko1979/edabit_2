@@ -52,20 +52,20 @@ The same concept can be applied also to primes. Primes that do not return other 
 
 def is_unprimeable(num):
 
-    index = 0
-    result = []
+    num_str = (str(num))
+    result = set()
 
-    while index < len(str(num)):
-        for i in range(10):
-            temp = list(str(num))
-            temp[index] = str(i)
-            result.append("".join(temp))
-        index += 1
-    result = [int(j) for j in result]
+    for i in range(len(str(num))):
+        for j in range(10):
+            if j != int(num_str[i]):
+                new_num = int(num_str[:i] + str(j) + num_str[i+1:])
+                result.add(new_num)
 
     prime_list = generate_primes(max(result))
+
     if num in prime_list:
         return "Prime Input"
+
     final = sorted([n for n in result if n in prime_list])
 
     return final if final else "Unprimeable"
