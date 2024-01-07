@@ -49,39 +49,54 @@ When changing the first digit, leading zeros are not considered part of the new 
 Despite is still an unproofed theory, as far as we know every even number (except 2) is not prime. You are free to choose to use this discriminant when you check the number obtained after the change of a digit.
 The same concept can be applied also to primes. Primes that do not return other primes when their single digits are changed (apart from the number itself) are called Weakly Primes: the first prime of this series is 294001.
 """
+def is_unprimeable(n):
+	if is_prime(n):
+		return 'Prime Input'
+	lst = []
+	s = str(n)
+	for i in range(len(s)):
+		for d in range(10):
+			c = int(s[:i] + str(d) + s[i+1:])
+			if is_prime(c):
+				lst += [c]
+	return sorted(lst) or 'Unprimeable'
 
-def is_unprimeable(num):
+def is_prime(n):
+	return n > 1 and all(n % i for i in range(2, n))
 
-    num_str = (str(num))
-    result = set()
 
-    for i in range(len(str(num))):
-        for j in range(10):
-            if j != int(num_str[i]):
-                new_num = int(num_str[:i] + str(j) + num_str[i+1:])
-                result.add(new_num)
-
-    prime_list = generate_primes(max(result))
-
-    if num in prime_list:
-        return "Prime Input"
-
-    final = sorted([n for n in result if n in prime_list])
-
-    return final if final else "Unprimeable"
-
-def generate_primes(n):
-    primes = [True] * (n + 1)
-    primes[0] = primes[1] = False
-
-    for i in range(2, int(n ** 0.5) + 1):
-        if primes[i]:
-            for j in range(i * i, n + 1, i):
-                primes[j] = False
-
-    return [i for i in range(n + 1) if primes[i]]
-
-    return prime_list
+# def is_unprimeable(num):
+#
+#     num_str = (str(num))
+#     result = set()
+#
+#     for i in range(len(str(num))):
+#         for j in range(10):
+#             if j != int(num_str[i]):
+#                 new_num = int(num_str[:i] + str(j) + num_str[i+1:])
+#                 result.add(new_num)
+#
+#     prime_list = generate_primes(max(result))
+#
+#     if num in prime_list:
+#         return "Prime Input"
+#
+#     final = sorted([n for n in result if n in prime_list])
+#
+#     return final if final else "Unprimeable"
+#
+# def generate_primes(n):
+#     primes = [True] * (n + 1)
+#     primes[0] = primes[1] = False
+#
+#     for i in range(2, int(n ** 0.5) + 1):
+#         if primes[i]:
+#             for j in range(i * i, n + 1, i):
+#                 primes[j] = False
+#
+#     return [i for i in range(n + 1) if primes[i]]
+#
+#     return prime_list
 
 
 print(is_unprimeable(200))
