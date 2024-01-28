@@ -30,34 +30,32 @@ num_then_char([
 Notes
 Test cases will contain integer and float numbers and single letters.
 """
-def num_then_char(lst):
+from itertools import chain
 
-    num = []
-    capital_l = []
-    non_capital_l = []
-    length_lst = []
-
-    for i in lst:
-        length_lst.append(len(i))
-        for char in i:
-            try:
-                if char.isalpha() & char.isupper():
-                    capital_l.append(char)
-                else:
-                    non_capital_l.append(char)
-            except:
-                num.append(char)
+def num_then_char(lsts):
 
     result = []
-    sorted_lst = sorted(num) + sorted(capital_l) + sorted(non_capital_l)
+    upper_alpha = []
+    lower_alpha = []
+    numbers = []
+    length_lst = []
+
+    for lst in lsts:
+        length_lst.append(len(lst))
+        numbers.append([item for item in lst if isinstance(item, (int, float)) or (isinstance(item, str) and item.isdigit())])
+        upper_alpha.append([char for item in lst if isinstance(item, str) for char in item if char.isalpha() and char.isupper()])
+        lower_alpha.append([char for item in lst if isinstance(item, str) for char in item if char.isalpha() and char.islower()])
+
+    sorted_lst = sorted(list(chain.from_iterable(numbers))) + sorted(list(chain.from_iterable(upper_alpha))) + sorted(list(chain.from_iterable(lower_alpha)))
 
     while len(sorted_lst) > 0:
         for n in length_lst:
             add_list = sorted_lst[0:n]
             result.append(add_list)
             sorted_lst = sorted_lst[n:]
-
     return result
+
+
 
 print(num_then_char([
   [1, 2, 4, 3, "a", "b"],
@@ -71,4 +69,24 @@ print(num_then_char([
   ["f", "e", 8],
   ["p","Y","Z"],
   [12,18]
+]))
+
+
+print(num_then_char([
+    [10, 2],
+    ["a",3],
+    [2.2, "d","h",6,"s",14,1],
+    ["f", "e"],
+    ["p","y","z","V"],
+    [5]
+]))
+
+print(num_then_char([
+    [10, 2,6,6.5,8.1,"q","w","a","s"],
+    ["f",4],
+    [2, 3,"h",6,"x",1,0],
+    ["g"],
+    ["p",7,"j","k","l"],
+    [5,"C","A","B"],
+    ["L",9]
 ]))
