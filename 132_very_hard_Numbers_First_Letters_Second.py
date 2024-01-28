@@ -30,30 +30,46 @@ num_then_char([
 Notes
 Test cases will contain integer and float numbers and single letters.
 """
-from itertools import chain
+def num_then_char(lst):
+    nums, letters = [],[]
+    for L in lst:
+        for a in L:
+            if type(a) == str:
+                letters.append(a)
+            else:
+                nums.append(a)
+    nums.sort()
+    letters.sort()
+    L = nums + letters
+    for i in range(len(lst)):
+        for j in range(len(lst[i])):
+            lst[i][j] = L.pop(0)
+    return lst
 
-def num_then_char(lsts):
-
-    result = []
-    upper_alpha = []
-    lower_alpha = []
-    numbers = []
-    length_lst = []
-
-    for lst in lsts:
-        length_lst.append(len(lst))
-        numbers.append([item for item in lst if isinstance(item, (int, float)) or (isinstance(item, str) and item.isdigit())])
-        upper_alpha.append([char for item in lst if isinstance(item, str) for char in item if char.isalpha() and char.isupper()])
-        lower_alpha.append([char for item in lst if isinstance(item, str) for char in item if char.isalpha() and char.islower()])
-
-    sorted_lst = sorted(list(chain.from_iterable(numbers))) + sorted(list(chain.from_iterable(upper_alpha))) + sorted(list(chain.from_iterable(lower_alpha)))
-
-    while len(sorted_lst) > 0:
-        for n in length_lst:
-            add_list = sorted_lst[0:n]
-            result.append(add_list)
-            sorted_lst = sorted_lst[n:]
-    return result
+# from itertools import chain
+#
+# def num_then_char(lsts):
+#
+#     result = []
+#     upper_alpha = []
+#     lower_alpha = []
+#     numbers = []
+#     length_lst = []
+#
+#     for lst in lsts:
+#         length_lst.append(len(lst))
+#         numbers.append([item for item in lst if isinstance(item, (int, float)) or (isinstance(item, str) and item.isdigit())])
+#         upper_alpha.append([char for item in lst if isinstance(item, str) for char in item if char.isalpha() and char.isupper()])
+#         lower_alpha.append([char for item in lst if isinstance(item, str) for char in item if char.isalpha() and char.islower()])
+#
+#     sorted_lst = sorted(list(chain.from_iterable(numbers))) + sorted(list(chain.from_iterable(upper_alpha))) + sorted(list(chain.from_iterable(lower_alpha)))
+#
+#     while len(sorted_lst) > 0:
+#         for n in length_lst:
+#             add_list = sorted_lst[0:n]
+#             result.append(add_list)
+#             sorted_lst = sorted_lst[n:]
+#     return result
 
 
 
