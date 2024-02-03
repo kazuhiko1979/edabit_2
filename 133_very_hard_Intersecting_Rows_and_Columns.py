@@ -50,7 +50,26 @@ transform_matrix([
 Notes
 It might be easier to visualize this by drawing the grid of 0's and 1's out on a sheet of paper, and drawing lines through a specific number's row and column.
 """
+def transform_matrix(matrix):
 
+    #　行数と列数を取得
+    rows = len(matrix)
+    cols = len(matrix[0])
+
+    # 各要素を0で初期化した結果の行列を作成
+    result = [[0] * cols for _ in range(rows)]
+
+    # 各要素について、行と列の合計を計算
+    for i in range(rows):
+        for j in range(cols):
+            # 行の合計を計算
+            row_sum = sum(matrix[i]) - matrix[i][j] # 自分自身は除く
+            # 列の合計を計算
+            col_sum = sum(row[j] for row in matrix) - matrix[i][j]
+            # 行と列の合計を足して結果行列に代入
+            result[i][j] = row_sum + col_sum
+
+    return result
 
 # import numpy as np
 # from numpy import zeros
