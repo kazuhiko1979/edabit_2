@@ -26,7 +26,6 @@ def bell(n):
         for j in range(1, i+1):
             bell_numbers[i][j] = bell_numbers[i-1][j-1] + bell_numbers[i][j-1]
 
-    print(bell_numbers)
     return bell_numbers[n][0]
 
 # テスト
