@@ -1,0 +1,91 @@
+{
+    // IntelliSense を使用して利用可能な属性を学べます。
+    // 既存の属性の説明をホバーして表示します。
+    // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "very_hard_Diagonal_Matrices_131",
+            "request": "launch",
+            "mainClass": "very_hard_Diagonal_Matrices_131",
+            "projectName": "edabit_2_1dfbb2bc"
+        },
+        {
+            "type": "java",
+            "name": "very_hard_Exactly_Three_135",
+            "request": "launch",
+            "mainClass": "very_hard_Exactly_Three_135",
+            "projectName": "edabit_2_1dfbb2bc"
+        },
+        {
+            "type": "java",
+            "name": "very_hard_Interquartile_Range_IQR_126",
+            "request": "launch",
+            "mainClass": "very_hard_Interquartile_Range_IQR_126",
+            "projectName": "edabit_2_1dfbb2bc"
+        },
+        {
+            "type": "java",
+            "name": "very_hard_Intersecting_Rows_and_Columns_133",
+            "request": "launch",
+            "mainClass": "very_hard_Intersecting_Rows_and_Columns_133",
+            "projectName": "edabit_2_1dfbb2bc"
+        },
+        {
+            "type": "java",
+            "name": "very_hard_Matrix_Multiplication_Part_2_141",
+            "request": "launch",
+            "mainClass": "very_hard_Matrix_Multiplication_Part_2_141",
+            "projectName": "edabit_2_1dfbb2bc"
+        },
+        {
+            "type": "java",
+            "name": "very_hard_Numbers_First_Letters_Second_132",
+            "request": "launch",
+            "mainClass": "very_hard_Numbers_First_Letters_Second_132",
+            "projectName": "edabit_2_1dfbb2bc"
+        },
+        {
+            "type": "java",
+            "name": "very_hard_Pilish_Strings_136",
+            "request": "launch",
+            "mainClass": "very_hard_Pilish_Strings_136",
+            "projectName": "edabit_2_1dfbb2bc"
+        },
+        {
+            "type": "java",
+            "name": "very_hard_Sort_a_String_with_the_Given_Template_143",
+            "request": "launch",
+            "mainClass": "very_hard_Sort_a_String_with_the_Given_Template_143",
+            "projectName": "edabit_2_1dfbb2bc"
+        },
+        {
+            "type": "java",
+            "name": "very_hard_String_Compression_from_Characters_Array_142",
+            "request": "launch",
+            "mainClass": "very_hard_String_Compression_from_Characters_Array_142",
+            "projectName": "edabit_2_1dfbb2bc"
+        },
+        {
+            "type": "java",
+            "name": "very_hard_The_Unprimeables_129",
+            "request": "launch",
+            "mainClass": "very_hard_The_Unprimeables_129",
+            "projectName": "edabit_2_1dfbb2bc"
+        },
+        {
+            "type": "java",
+            "name": "very_hard_Time_Around_the_World_130",
+            "request": "launch",
+            "mainClass": "very_hard_Time_Around_the_World_130",
+            "projectName": "edabit_2_1dfbb2bc"
+        }
+    ]
+}
