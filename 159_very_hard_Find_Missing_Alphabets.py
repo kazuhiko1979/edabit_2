@@ -28,7 +28,7 @@ def missing_alphabets(s):
 #
 # def missing_alphabets(txt):
 #
-#     count_alpha_set = collections.Counter(string.ascii_lowercase)
+#     count_alpha_set = collections.Counter(string.ascii_lowercase)160
 #     count_txt = collections.Counter(txt)
 #     max_count = max(count_txt.values())
 #
