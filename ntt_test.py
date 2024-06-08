@@ -1,146 +1,320 @@
+# Location名はpres2が原因かどうか検証　20240607
 import os
-
-# 必要なライブラリをインストール: RW-FAT環境実行時 # zipfile shutil は環境によってインストール
-# proxy = "--proxy=10.160.120.156:8080"
-# os.system(f"pip install {proxy} spire-presentation")
-
 import zipfile
 import shutil
 import re
 from spire.presentation import Presentation, FileFormat
-import datetime
+import ctypes
+from pptx import Presentation as pptx_Presentation  # pptxライブラリをインポート
+from pptx.util import Inches, Pt  # インチとポイントを扱うためのユーティリティをインポート
+from pptx.dml.color import RGBColor
 
 
-# レポート対象期間の設定
-target_year = 2023
-target_month = 4
-target_date = datetime.date(target_year, target_month, 1)
-target_period = target_date.strftime("%Y_%m")
-target_period_pass = target_date.strftime("%Y%m")
+# 変数に格納先のパスを設定
+ZIP_FILE_DIR = "C:\\"
+
+# 対象ファイル名を取得、正規表現を修正
+zip_file_name_pattern = re.compile(r"webex_reports_(\d{6})_\d+\.zip")
+zip_file_name = None
+for file in os.listdir(ZIP_FILE_DIR):
+    match = zip_file_name_pattern.match(file)
+    if match:
+        zip_file_name = file
+        target_period_pass = match.group(1)
+        break
+
+if not zip_file_name:
+    print("対象ファイルが見つかりませんでした")
+    exit()
+
+zip_file_path = os.path.join(ZIP_FILE_DIR, zip_file_name)
+
+if not os.path.exists(zip_file_path):
+    print("zipファイルが存在しません")
+    exit()
 
 # パスワードの設定
 password = f"Managed-lan-{target_period_pass}"
-password_bytes = password.encode()  # バイト列にエンコード
-print('pass: ', password)
+password_bytes = password.encode()
 
-
-# 対象ファイル
-zip_file_dir = f"C:\\reports\webex\\{target_period}"
-
-# レポート出力パスの設定
-OUTPUT_PATH = zip_file_dir
+# 出力パスと一時ディレクトリの設定
+OUTPUT_PATH = os.path.join(ZIP_FILE_DIR, f"output_{target_period_pass}")
 os.makedirs(OUTPUT_PATH, exist_ok=True)
 
-# 一時ディレクトリの作成
-temp_dir = os.path.join(zip_file_dir, "all")
+temp_dir = os.path.join(OUTPUT_PATH, "all")
 os.makedirs(temp_dir, exist_ok=True)
 
-
-# 圧縮ファイルのリストを取得
-zip_files = [f for f in os.listdir(zip_file_dir) if f.endswith('.zip')]
-
 # 圧縮ファイルを一時ディレクトリに展開
-for zip_file_name in zip_files:
-    zip_file_path = os.path.join(zip_file_dir, zip_file_name)
-    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-        zip_ref.extractall(temp_dir, pwd=password_bytes)
-    # 圧縮ファイルを削除
-    os.remove(zip_file_path)
-print("コピー処理が完了しました。")
+with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+    zip_ref.extractall(temp_dir, pwd=password_bytes)
 
-
-# クライアントとORG名に基づいてディレクトリを作成し、ファイルを移動する
-files = [f for f in os.listdir(temp_dir) if f.endswith(('.pptx', '.ppt'))]
-for file_name in files:
-    # クライアント名を抽出
-    match = re.match(r"(.+?)-", file_name)
-    if match:
-        client_name = match.group(1)
-        client_dir = os.path.join(zip_file_dir, client_name)
+# 各 ORG フォルダを元にクライアントディレクトリを作成し、ファイルを移動する
+for org_name in os.listdir(temp_dir):
+    org_path = os.path.join(temp_dir, org_name)
+    if os.path.isdir(org_path):
+        client_dir = os.path.join(OUTPUT_PATH, org_name)
         os.makedirs(client_dir, exist_ok=True)
 
-        # ファイルを移動
-        src_path = os.path.join(temp_dir, file_name)
-        dst_path = os.path.join(client_dir, file_name)
-        shutil.move(src_path, dst_path)
+        for file_name in os.listdir(org_path):
+            if file_name.endswith(('.pptx', '.ppt')):
+                src_path = os.path.join(org_path, file_name)
+
+                # ファイル名の先頭部分（最初の「-」の手前の文字列）を取得
+                base_name = file_name.split('-')[0]
+                if base_name == org_name:
+                    dst_path = os.path.join(client_dir, file_name)
+                else:
+                    # フォルダ名とファイルの先頭部分が異なる場合、対応するフォルダに移動
+                    other_client_dir = os.path.join(OUTPUT_PATH, base_name)
+                    os.makedirs(other_client_dir, exist_ok=True)
+                    dst_path = os.path.join(other_client_dir, file_name)
+                shutil.move(src_path, dst_path)
+
+        # 元のフォルダを削除
+        shutil.rmtree(client_dir)
 
 # 一時ディレクトリを削除
 shutil.rmtree(temp_dir)
-print("フォルダ再整理処理が完了しました。")
+
 
 # 各クライアントディレクトリ内で処理を実行
-for client_dir in os.listdir(zip_file_dir):
-    if client_dir == "all":
+for client_dir in [d for d in os.listdir(OUTPUT_PATH) if os.path.isdir(os.path.join(OUTPUT_PATH, d))]:
+    client_path = os.path.join(OUTPUT_PATH, client_dir)
+    files = [f for f in os.listdir(client_path) if f.endswith(('.pptx', '.ppt'))]
+
+    if len(files) < 2:
+        print(f"2つ以上の PowerPoint ファイルが必要です。'{client_dir}' にあるファイル数: {len(files)}")
         continue
 
-    client_path = os.path.join(zip_file_dir, client_dir)
-    if not os.path.isdir(client_path):
-        continue  # ZIPファイルをスキップ
-    print(client_path)
-    files = [f for f in os.listdir(client_path) if f.endswith(('.pptx', '.ppt')) and not f.endswith('.zip')]
-    file_count = len(files)
-    print(f"{file_count} PowerPoint ファイルが '{client_dir}' から見つかりました。")
+    # ORG名とLocationを抽出
+    org_name = client_dir.split('-')[0]
+    locations = [f.split('_')[0] for f in files]
 
-    if file_count < 2:
-        print("2つ以上の PowerPoint ファイルが必要です。")
-        continue
-
-    # 1番目のファイルを読み込み、スライドマスターを取得
     first_file_path = os.path.join(client_path, files[0])
     pres1 = Presentation()
     pres1.LoadFromFile(first_file_path)
-    master = pres1.Masters.get_Item(0)
+    master_slide_7 = pres1.Slides.get_Item(6)
+    pres1.Slides.RemoveAt(6)
 
-    # 7ページ目のスライドを一時的に保持する変数
-    master_slide_7 = pres1.Slides.get_Item(6)  # 7ページ目のスライドを取得
-    pres1.Slides.RemoveAt(6)  # 7ページ目のスライドを削除
-
-    # 2番目以降のファイルから、3~6ページのスライドをコピー
-    for filename in files[1:]:
+    for i, filename in enumerate(files[1:], 1):
         file_path = os.path.join(client_path, filename)
         pres2 = Presentation()
         pres2.LoadFromFile(file_path)
 
-        for i in range(2, 6):  # 3~6ページ
-            slide = pres2.Slides.get_Item(i)
+        for j in range(2, 6):
+            slide = pres2.Slides.get_Item(j)
             pres1.Slides.AppendBySlide(slide)
+
+            # スライドにLocationをテキストで挿入
+            pptx_slide = pptx_Presentation(file_path).slides[j - 1]  # pptxで読み込む
+            text_box = pptx_slide.shapes.add_textbox(Inches(4), Inches(0.5), Inches(8), Inches(1))  # テキストボックスを追加
+            text_frame = text_box.text_frame
+            text_frame.text = locations[i - 1]  # Locationをテキストとして設定
+            text_frame.paragraphs[0].font.size = Pt(30)  # フォントサイズを30ptに設定
+            text_frame.paragraphs[0].font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)  # テキストの色を白に設定
+
+            print(text_frame.text)
+
+        # pres2を一時ファイルとして保存
+        temp_file_path = os.path.join(client_path, f"temp_{filename}")
+        pres2.SaveToFile(temp_file_path, FileFormat.Pptx2019)
         pres2.Dispose()
 
-    # 7ページ目のスライドを最後尾に追加
-    pres1.Slides.AppendBySlide(master_slide_7)
+        # 一時ファイルから元のファイルを上書き
+        os.remove(file_path)
+        os.rename(temp_file_path, file_path)
 
-    # 1番目のファイルを上書き保存
+    pres1.Slides.AppendBySlide(master_slide_7)
     output_path = os.path.join(client_path, f"{client_dir}.pptx")
     pres1.SaveToFile(output_path, FileFormat.Pptx2019)
 
-    # ファイルサイズチェックと圧縮
-    if os.path.getsize(output_path) > 18 * 1024 * 1024:  # 18MB以上の場合
+    if os.path.getsize(output_path) > 18 * 1024 * 1024:
         part_num = 1
         with open(output_path, 'rb') as f:
-            while True:
-                chunk = f.read(18 * 1024 * 1024)
-                if not chunk:
-                    break
-
+            while chunk := f.read(18 * 1024 * 1024):
                 part_name = f"{client_dir}_{part_num}.pptx"
                 part_path = os.path.join(client_path, part_name)
 
                 with open(part_path, 'wb') as part_file:
                     part_file.write(chunk)
-
                 part_num += 1
 
         os.remove(output_path)
-    else:  # 18MB以下の場合
+    else:
         pres1.SaveToFile(output_path, FileFormat.Pptx2019)
 
     pres1.Dispose()
 
-    # 展開したオリジナルのファイルを削除
     for filename in files:
         file_path = os.path.join(client_path, filename)
         os.remove(file_path)
 
     print(f"'{client_dir}' の処理が完了しました。")
 
-print("すべての処理が完了しました。")
+    # 対象ファイルの属性を変更して削除
+    if os.path.exists(zip_file_path):
+        # ファイルの読み取り専用属性を解除
+        FILE_ATTRIBUTE_NORMAL = 0x80
+        ctypes.windll.kernel32.SetFileAttributesW(zip_file_path, FILE_ATTRIBUTE_NORMAL)
+
+        try:
+            os.remove(zip_file_path)
+            print(f"対象ファイル '{zip_file_name}' が削除されました。")
+        except PermissionError as e:
+            print(f"ファイル削除中にエラーが発生しました: {e}")
+
+    print("すべての処理が完了しました。")
+
+
+
+### 2024/06/06 Location名挿入処理前オリジナル　####
+
+# import os
+# import zipfile
+# import shutil
+# import re
+# from spire.presentation import Presentation, FileFormat
+# import ctypes
+#
+#
+# # 必要なライブラリをインストール: RW-FAT環境実行時
+# # proxy = "--proxy=10.160.120.156:8080"
+# # os.system(f"pip install {proxy} spire-presentation")
+# # zipfile shutil は環境によってインストール
+# # os.system(f"pip install {proxy} zipfile shutil spire-presentation")
+#
+# # 変数に格納先のパスを設定
+# ZIP_FILE_DIR = "C:\\"
+#
+#
+# # 対象ファイル名を取得、正規表現を修正
+# zip_file_name_pattern = re.compile(r"webex_reports_(\d{6})_\d+\.zip")
+# zip_file_name = None
+# for file in os.listdir(ZIP_FILE_DIR):
+#     match = zip_file_name_pattern.match(file)
+#     if match:
+#         zip_file_name = file
+#         target_period_pass = match.group(1)
+#         break
+#
+# if not zip_file_name:
+#     print("対象ファイルが見つかりませんでした")
+#     exit()
+#
+# zip_file_path = os.path.join(ZIP_FILE_DIR, zip_file_name)
+#
+# if not os.path.exists(zip_file_path):
+#     print("zipファイルが存在しません")
+#     exit()
+#
+# # パスワードの設定
+# password = f"Managed-lan-{target_period_pass}"
+# password_bytes = password.encode()
+#
+# # 出力パスと一時ディレクトリの設定
+# OUTPUT_PATH = os.path.join(ZIP_FILE_DIR, f"output_{target_period_pass}")
+# os.makedirs(OUTPUT_PATH, exist_ok=True)
+#
+# temp_dir = os.path.join(OUTPUT_PATH, "all")
+# os.makedirs(temp_dir, exist_ok=True)
+#
+# # 圧縮ファイルを一時ディレクトリに展開
+# with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+#     zip_ref.extractall(temp_dir, pwd=password_bytes)
+#
+#
+# # 各 ORG フォルダを元にクライアントディレクトリを作成し、ファイルを移動する
+# for org_name in os.listdir(temp_dir):
+#     org_path = os.path.join(temp_dir, org_name)
+#     if os.path.isdir(org_path):
+#         client_dir = os.path.join(OUTPUT_PATH, org_name)
+#         os.makedirs(client_dir, exist_ok=True)
+#
+#         for file_name in os.listdir(org_path):
+#             if file_name.endswith(('.pptx', '.ppt')):
+#                 src_path = os.path.join(org_path, file_name)
+#
+#                 # ファイル名の先頭部分（最初の「-」の手前の文字列）を取得
+#                 base_name = file_name.split('-')[0]
+#                 if base_name == org_name:
+#                     dst_path = os.path.join(client_dir, file_name)
+#                 else:
+#                     # フォルダ名とファイルの先頭部分が異なる場合、対応するフォルダに移動
+#                     other_client_dir = os.path.join(OUTPUT_PATH, base_name)
+#                     os.makedirs(other_client_dir, exist_ok=True)
+#                     dst_path = os.path.join(other_client_dir, file_name)
+#                 shutil.move(src_path, dst_path)
+#
+#         # 元のフォルダを削除
+#         shutil.rmtree(client_dir)
+#
+# # 一時ディレクトリを削除
+# shutil.rmtree(temp_dir)
+#
+#
+# # 各クライアントディレクトリ内で処理を実行
+# for client_dir in [d for d in os.listdir(OUTPUT_PATH) if os.path.isdir(os.path.join(OUTPUT_PATH, d))]:
+#     client_path = os.path.join(OUTPUT_PATH, client_dir)
+#     files = [f for f in os.listdir(client_path) if f.endswith(('.pptx', '.ppt'))]
+#
+#     if len(files) < 2:
+#         print(f"2つ以上の PowerPoint ファイルが必要です。'{client_dir}' にあるファイル数: {len(files)}")
+#         continue
+#
+#     first_file_path = os.path.join(client_path, files[0])
+#     pres1 = Presentation()
+#     pres1.LoadFromFile(first_file_path)
+#     master_slide_7 = pres1.Slides.get_Item(6)
+#     pres1.Slides.RemoveAt(6)
+#
+#     for filename in files[1:]:
+#         file_path = os.path.join(client_path, filename)
+#         pres2 = Presentation()
+#         pres2.LoadFromFile(file_path)
+#
+#         for i in range(2, 6):
+#             slide = pres2.Slides.get_Item(i)
+#             pres1.Slides.AppendBySlide(slide)
+#         pres2.Dispose()
+#
+#     pres1.Slides.AppendBySlide(master_slide_7)
+#     output_path = os.path.join(client_path, f"{client_dir}.pptx")
+#     pres1.SaveToFile(output_path, FileFormat.Pptx2019)
+#
+#     if os.path.getsize(output_path) > 18 * 1024 * 1024:
+#         part_num = 1
+#         with open(output_path, 'rb') as f:
+#             while chunk := f.read(18 * 1024 * 1024):
+#                 part_name = f"{client_dir}_{part_num}.pptx"
+#                 part_path = os.path.join(client_path, part_name)
+#
+#                 with open(part_path, 'wb') as part_file:
+#                     part_file.write(chunk)
+#                 part_num += 1
+#
+#         os.remove(output_path)
+#     else:
+#         pres1.SaveToFile(output_path, FileFormat.Pptx2019)
+#
+#     pres1.Dispose()
+#
+#     for filename in files:
+#         file_path = os.path.join(client_path, filename)
+#         os.remove(file_path)
+#
+#     print(f"'{client_dir}' の処理が完了しました。")
+#
+# # 対象ファイルの属性を変更して削除
+# if os.path.exists(zip_file_path):
+#     # ファイルの読み取り専用属性を解除
+#     FILE_ATTRIBUTE_NORMAL = 0x80
+#     ctypes.windll.kernel32.SetFileAttributesW(zip_file_path,
+# FILE_ATTRIBUTE_NORMAL)
+#     try:
+#         os.remove(zip_file_path)
+#         print(f"対象ファイル '{zip_file_name}' が削除されました。")
+#     except PermissionError as e:
+#         print(f"ファイル削除中にエラーが発生しました: {e}")
+#
+#
+# print("すべての処理が完了しました。")
