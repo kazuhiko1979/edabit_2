@@ -34,15 +34,11 @@ def color_conversion(h):
     if bool(pattern.match(h)):
         if h.startswith('#'):
             h = h[1:]
-
         r = int(h[0:2], 16)
         g = int(h[2:4], 16)
         b = int(h[4:6], 16)
         return {'r': r, 'g': g, 'b': b}
-        # value_rgb = [h[i:i + 2] for i in range(0, len(h), 2)]
-        # key_rgb = ["r", "g", "b"]
-        # dicimal_rbg = [int(i, 16) for i in value_rgb]
-        # result = dict(zip(key_rgb, dicimal_rbg))
+
         # return result
     else:
         return 'Invalid input!'
