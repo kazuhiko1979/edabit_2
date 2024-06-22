@@ -1,10 +1,10 @@
-# リファクタリング1 20240614
+# Update 20240620 スライド並び替えAAA
 import os
 import zipfile
 import shutil
 import re
 import ctypes
-from spire.presentation import Presentation, FileFormat, ShapeType, TextAlignmentType, TextFont
+from spire.presentation import Presentation, FileFormat, ShapeType, TextAlignmentType, TextFont, FillFormatType
 from spire.presentation.common import RectangleF, PointF, SizeF
 
 # 定数の設定
@@ -47,14 +47,27 @@ def move_files_to_client_dirs(temp_dir, output_path):
             shutil.rmtree(org_path)
 
 def insert_location_text(slide, location):
-    left, top, width, height = 25.0, 100.0, 288.0, 25.0
+    # 20240620 改良　位置（右上）適宜調整
+    left = 280.0
+    top = 20.0
+    width = 288.0
+    height = 25.0
+
     text_box = slide.Shapes.AppendShape(ShapeType.Rectangle, RectangleF(PointF(left, top), SizeF(width, height)))
-    text_box.Fill.Visible = False
+
+    # 枠線を非表示にする
     text_box.Line.Visible = False
-    text_box.TextFrame.Text = location
-    text_box.TextFrame.Paragraphs[0].TextRanges[0].LatinFont = TextFont("Arial")
+    # ボックス内の塗りつぶしを非表示にする
+    text_box.Fill.Visible = False
+
+    # 20240620 表示変更 -> Location：location名　適宜調整
+    location_text = location.split('-', 1)[-1]
+    text_box.TextFrame.Text = f"Location: {location_text}"
+
+    text_box.TextFrame.Paragraphs[0].TextRanges[0].LatinFont = TextFont("Arial") # タイトルと同じスタイル
     text_box.TextFrame.Paragraphs[0].TextRanges[0].FontHeight = 18
     text_box.TextFrame.Paragraphs[0].Alignment = TextAlignmentType.Center
+
 
 def process_presentation(presentation, location, slide_indices):
     for index in slide_indices:
