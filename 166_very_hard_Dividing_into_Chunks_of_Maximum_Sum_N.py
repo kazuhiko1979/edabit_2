@@ -22,22 +22,11 @@ def divide(lst, n):
     temp = []
 
     for i in lst:
-        if sum(temp) == n:
+        if sum(temp) + i > n:
+            result.append(temp)
+            temp = [i]
+        else:
             temp.append(i)
-            if sum(temp) <= n:
-                continue
-            else:
-                next_value = temp.pop()
-                result.append(temp)
-                temp = []
-                temp.append(next_value)
-        elif sum(temp) < n:
-            temp.append(i)
-            if sum(temp) > n:
-                next_value = temp.pop()
-                result.append(temp)
-                temp = []
-                temp.append(next_value)
     if temp:
         result.append(temp)
     return result
