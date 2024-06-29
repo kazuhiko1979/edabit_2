@@ -1,1 +1,7 @@
 .idea/inspectionProfiles/Project_Default.xml
+__pycache__/
+folder_arrangement.py
+ntt_remove_spire_warning.py
+temp_dir/
+webex_reports_2023_04.zip
+webex_reports_2023_04_1.zip
